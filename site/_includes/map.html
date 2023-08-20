@@ -1,0 +1,157 @@
+<!-- map.html include -->
+
+<div id="map">
+
+</div>
+
+<br />
+
+<h2>Filters</h2>
+
+<!-- <label for="min-beds">Minimum Beds: </label>
+<input type="number" id="min-beds" name="min-beds" value="0" min="0" max="100" onchange="redrawMap();">
+
+<label for="max-beds">Maximum Beds: </label>
+<input type="number" id="max-beds" name="max-beds" value="100" min="0" max="100" onchange="redrawMap();"> -->
+
+<label for="beds">
+    Bedrooms: 
+</label>
+<input type="number" id="beds" name="beds" min="0" max="15" value="0" onchange="redrawMap();">
+
+<label for="status">Status: </label>
+<select id="status" name="status" onchange="redrawMap();">
+    <option value="all">All</option>
+    <option value="let">Let</option>
+    <option value="not let" selected>Not Let</option>
+</select>
+
+<label for="ensuite">Ensuite: </label>
+<input type="checkbox" id="ensuite" name="ensuite" onchange="redrawMap();">
+
+<label for="max-price">Maximum Price: £</label>
+<input type="number" id="max-price" name="max-price" value="1000" min="0" max="1000" step="0.01" onchange="redrawMap();">
+
+<br />
+
+<span id="counter"></span>
+<span hidden id="selected-counter"></span>
+
+<style>
+    #map {
+        height: 70vh;
+        width: 100%;
+    }
+</style>
+
+<script>
+    const properties = {{ site.data.combined | jsonify }};
+
+    FILTER_STATUS = "all";
+    FILTER_MIN_BED = 0;
+    FILTER_MAX_BED = 100;
+    FILTER_ENSUITE = false;
+
+    FILTER_MIN_PRICE = 0;
+    FILTER_MAX_PRICE = 1000000;
+
+
+    document.getElementById("counter").innerHTML = `There are ${properties.length} properties in the database.`;
+
+    var map = L.map('map').setView([52.44399095286495, -1.932108295065283], 15);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    var allProperties = L.layerGroup().addTo(map);
+
+    function drawMap() {
+        properties.forEach(element => {
+            if (element.lat && element.lon) {
+                if (typeof element.price == "string") {
+                    if (element.price.includes("£")) {
+                        element.price = element.price.replace("£", "");
+                    }
+
+                    if (element.price.includes("pppw") || element.price.includes("/Week")) {
+                        element.price = element.price.replace("pppw", "");
+                        element.price = element.price.replace("/Week", "");
+                        element.price = parseFloat(element.price);
+                    }
+
+                    else if (element.price.includes("pcm") || element.price.includes("/Month")) {
+                        element.price = element.price.replace("pcm", "");
+                        element.price = element.price.replace("/Month", "");
+                        element.price = parseFloat(element.price) / 4.34524;
+                    }
+                }
+
+                var marker = L.marker([element.lat, element.lon]);
+                marker.bindPopup(`<a href="${element.url}">${element.title}</a>
+                                <br />
+                                £${element.price} pw<br />
+                                ${element.beds} bedrooms<br />
+                                ${element.baths} bathrooms<br />
+                                ${element.baths == element.beds ? "Ensuites" : ""}`);
+                
+                if (FILTER_STATUS == "not let") {
+                    if (element.status == "Let") {
+                        return;
+                    }
+                } else if (FILTER_STATUS == "let") {
+                    if (element.status != "Let") {
+                        return;
+                    }
+                }
+
+                if (element.beds < FILTER_MIN_BED || element.beds > FILTER_MAX_BED) {
+                    return;
+                }
+
+                if (FILTER_ENSUITE) {
+                    if (element.beds != element.baths) {
+                        return;
+                    }
+                }
+
+                if (element.price < FILTER_MIN_PRICE || element.price > FILTER_MAX_PRICE) {
+                    return;
+                } else {
+                    console.log(element.price);
+                }
+
+                marker.addTo(allProperties);
+                
+            } else {
+                console.log(element.title)
+            }
+        });
+    }
+
+    function updateFilters() {
+        FILTER_STATUS = document.getElementById("status").value;
+        FILTER_MIN_BED = document.getElementById("beds").value;
+        FILTER_MAX_BED = document.getElementById("beds").value;
+        FILTER_ENSUITE = document.getElementById("ensuite").checked;
+
+        if (document.getElementById("beds").value == 0) {
+            FILTER_MAX_BED = 100;
+        }
+
+        FILTER_MAX_PRICE = document.getElementById("max-price").value;
+        // FILTER_MIN_BED = document.getElementById("min-beds").value;
+        // FILTER_MAX_BED = document.getElementById("max-beds").value;
+    }
+
+    function redrawMap() {
+        updateFilters();
+        allProperties.clearLayers();
+        drawMap();
+
+        document.getElementById("selected-counter").innerHTML = `There are ${allProperties.getLayers().length} properties matching your filters.`;
+        document.getElementById("selected-counter").hidden = false;
+    }
+
+    redrawMap();
+</script>
