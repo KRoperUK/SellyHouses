@@ -301,15 +301,111 @@ class easy_lettings():
             # print(y.properties)
             json.dump(self.properties, f, sort_keys=True, indent=4)
 
+class oakmans():
+    def __init__(self) -> None:
+        self.BASE_LINK = f"https://oakmans.co.uk/buying/?department=student"
+
+        soup = BeautifulSoup(get(self.BASE_LINK).text, features="lxml")
+        self.pages = soup.find('ul', class_='pagination').find_all('li')[-2].text
+
+        self.properties = []
+
+    def find_first(self):
+        current_page = 1
+        url = f"https://oakmans.co.uk/buying/page/{current_page}/?department=student"
+
+        self.get_page_info(url)
+
+    def find_all(self):
+        for i in range(1, int(self.pages) + 1):
+            url = f"https://oakmans.co.uk/buying/page/{i}/?department=student"
+            self.get_page_info(url)
+        
+
+    def save_to_json(self):
+        with open('oakmans.json', 'w') as f:
+            json.dump(self.properties, f, sort_keys=True, indent=4)
+
+    def get_page_info(self, url):
+        soup = BeautifulSoup(get(url).text, features="lxml")
+
+        log(f"Oakmans - Getting page info from... {url}")
+
+        properties_raw = soup.find('div', class_='properties card-deck')
+        properties_raw = properties_raw.find_all('a')
+
+        for property_raw in properties_raw:
+            property = {}
+
+
+            property['source'] = "Oakmans"
+            property['url'] = property_raw['href']
+            property['title'] = property_raw.find('h3', class_='card-header').text.split('£')[0].strip()
+            log(f"Getting basic data about... {property['title']}")
+            property['price'] = property_raw.find('small').text.strip()
+
+            property['price'] = property['price'].replace('per person per week', 'pppw')
+
+            property['beds'] = property_raw.find('p', class_='card-text').text.split(' ')[0].strip()
+
+            property = self.get_property_info(property['url'], property)
+
+            self.properties.append(property)
+
+    def get_property_info(self, url, property):
+        soup = BeautifulSoup(get(url).text, features="lxml")
+
+        log(f"Getting more data about... {property['title']}")
+
+        lat_lng = soup.find_all('script')[-4].text.split('\n')[7].split('LatLng(')[1].split(')')[0].split(',')
+        property['lat'] = lat_lng[0].strip()
+        property['lon'] = lat_lng[1].strip()
+
+        property['available_date'] = "Unknown"
+        features = soup.find('h4', text='Description').find_next('p').text
+        features_split = features.split(' – ')
+
+        try:
+            if "bathroom" in features.lower():
+                property['baths'] = '1'
+            elif "en suite" in features.lower() or "ensuite" in features.lower() or "en-suite" in features.lower() or "en suites" in features.lower():
+                property['baths'] = property['beds']
+            else:
+                raw_baths = features_split[3].split(' ')[0].lower()
+                if raw_baths == "one":
+                    property['baths'] = '1'
+                elif raw_baths == "two":
+                    property['baths'] = '2'
+                elif raw_baths == "three":
+                    property['baths'] = '3'
+                elif raw_baths == "four":
+                    property['baths'] = '4'
+                elif raw_baths == "five":
+                    property['baths'] = '5'
+                elif raw_baths == "six":
+                    property['baths'] = '6'
+                else:
+                    property['baths'] = 'Unknown'
+        except:
+            log(f"ERROR - Could not find baths for {property['title']}")
+            property['baths'] = "Unknown"
+
+        return property
+
 x = house_hunt()
-x.find_all()
+# x.find_all()
 # x.find_first()
-x.save_to_json()
+# x.save_to_json()
 
 y = easy_lettings()
 # y.find_first()
-y.find_all()
-y.save_to_json()
+# y.find_all()
+# y.save_to_json()
+
+z = oakmans()
+# z.find_first()
+z.find_all()
+z.save_to_json()
 
 with open('combined.json', 'w') as f:
     json.dump(x.properties + y.properties, f, sort_keys=True, indent=4)
