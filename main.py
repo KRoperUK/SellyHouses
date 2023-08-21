@@ -391,21 +391,127 @@ class oakmans():
             property['baths'] = "Unknown"
 
         return property
+    
+class purple_frog():
+    def __init__(self) -> None:
 
-x = house_hunt()
-# x.find_all()
-# x.find_first()
-# x.save_to_json()
+        self.properties = []
+        self.BASE_LINK = "https://www.purplefrogproperty.com/student-accommodation/Birmingham/?bills=&price%5Bfrom%5D=85&price%5Bto%5D=220&doubles%5Bfrom%5D=0&doubles%5Bto%5D=8&showers%5Bfrom%5D=1&showers%5Bto%5D=8&wc%5Bfrom%5D=1&wc%5Bto%5D=8&drawn=&year=next&sort=price-low&features=&view=grid"
+        
+        soup = BeautifulSoup(get(self.BASE_LINK).text, features="lxml")
 
-y = easy_lettings()
-# y.find_first()
-# y.find_all()
-# y.save_to_json()
+        self.pages = soup.find('ul', class_='pagination').find_all('li', class_="page")[-3].text
+    
+    def find_first(self):
+        self.get_page_info(self.BASE_LINK)
 
-z = oakmans()
-# z.find_first()
-z.find_all()
-z.save_to_json()
+    def find_all(self):
+        pass
 
-with open('combined.json', 'w') as f:
-    json.dump(x.properties + y.properties, f, sort_keys=True, indent=4)
+    def save_to_json(self):
+        with open('purple_frog.json', 'w') as f:
+            json.dump(self.properties, f, sort_keys=True, indent=4)
+
+    def get_page_info(self, url):
+        soup = BeautifulSoup(get(url).text, features="lxml")
+
+        properties_raw = soup.find_all('div', class_='housing')
+        
+        for property_raw in properties_raw:
+            property = {}
+
+            property["title"] = property_raw.find('a', class_="url permalink summary adr").text
+            property["url"] = "https://www.purplefrogproperty.com" + property_raw.find('a', class_="url permalink summary adr")['href']
+            property["price"] = property_raw.find('div', class_="price rent").text.strip()
+
+            property_raw_features = property_raw.find('footer', class_="description").find('ul').find_all('li')
+            property['beds'] = property_raw_features[1].text.split(' ')[0].strip()
+
+            if property['beds'] == "Share":
+                property['beds'] = "Unknown"
+
+            property['baths'] = property_raw_features[2].text.split(' ')[0].strip()
+            log(f"Getting basic data about... {property['title']}")
+            
+            self.properties.append(property)
+
+
+    def get_property_info(self, url, property):
+        pass
+
+class king_co():
+    def __init__(self):
+        self.BASE_LINK = "https://www.kingandcoproperties.com/search.ljson?channel=lettings&fragment=page-1"
+        self.properties = []
+
+        first_page = get(self.BASE_LINK).json()
+        total_properties = first_page['pagination']["total_count"]
+
+        self.pages = int(total_properties / 12) + 1
+
+    def find_all(self):
+        for i in range(1, self.pages + 1):
+            self.get_page_info(f"https://www.kingandcoproperties.com/search.ljson?channel=lettings&fragment=page-{i}")
+    def find_first(self):
+        self.get_page_info(self.BASE_LINK)
+    
+    def get_page_info(self, url):
+        log(f"King & Co - Getting page info from... {url}")
+
+        page = get(url).json()
+
+        for property in page['properties']:
+            property = self.get_property_info(property)
+            self.properties.append(property)
+    
+    def get_property_info(self, property_raw):
+        property = {}
+
+        property["title"] = property_raw['display_address']
+        property["url"] = "https://www.kingandcoproperties.com" + property_raw['property_url']
+        property["lat"] = property_raw['lat']
+        property["lon"] = property_raw['lng']
+        property["price"] = property_raw['price']
+
+        property['beds'] = property_raw['bedrooms']
+        property['baths'] = property_raw['bathrooms']
+        property['receptions'] = property_raw['reception_rooms']
+        property['source'] = "King & Co"
+
+        return property
+    def save_to_json(self):
+        with open('king_co.json', 'w') as f:
+            json.dump(self.properties, f, sort_keys=True, indent=4)
+
+
+
+
+
+# x = house_hunt()
+# # x.find_all()
+# # x.find_first()
+# # x.save_to_json()
+
+# y = easy_lettings()
+# # y.find_first()
+# # y.find_all()
+# # y.save_to_json()
+
+# z = oakmans()
+# # z.find_first()
+# z.find_all()
+# z.save_to_json()
+
+# a = purple_frog()
+# a.find_first()
+# # a.find_all()
+# a.save_to_json()
+
+b = king_co()
+# b.find_first()
+b.find_all()
+b.save_to_json()
+
+
+# with open('combined.json', 'w') as f:
+#     json.dump(x.properties + y.properties, f, sort_keys=True, indent=4)
