@@ -88,9 +88,11 @@
                         element.price = element.price.replace("£", "");
                     }
 
-                    if (element.price.includes("pppw") || element.price.includes("/Week")) {
+                    if (element.price.includes("pppw") || element.price.includes("/Week") || element.price.includes("pw") || element.price.includes("per week")) {
                         element.price = element.price.replace("pppw", "");
                         element.price = element.price.replace("/Week", "");
+                        element.price = element.price.replace("pw", "");
+                        element.price = element.price.replace("per week", "");
                         element.price = parseFloat(element.price);
                     }
 
