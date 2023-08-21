@@ -42,6 +42,12 @@
             <input type="number" id="max-price" name="max-price" value="150" min="0" max="300" step="1" pattern="\d*" onchange="redrawMap();">
         </form>
     </li>
+    <li>
+        <form>
+            <label for="start-date">Available from: </label>
+            <input type="date" id="start-date" name="start-date" value="2023-01-01" onchange="redrawMap();">
+        </form>
+    </li>
 
 
 </ul>
@@ -68,6 +74,8 @@
 
     FILTER_MIN_PRICE = 0;
     FILTER_MAX_PRICE = 1000000;
+
+    FILTER_START_DATE = new Date().getFullYear() - 1
 
 
     document.getElementById("counter").innerHTML = `There are ${properties.length} properties in the database.`;
@@ -109,7 +117,8 @@
                                 £${element.price} pw<br />
                                 ${element.beds} bedrooms<br />
                                 ${element.baths} bathrooms<br />
-                                ${element.baths == element.beds ? "Ensuites" : ""}`);
+                                ${element.baths == element.beds ? "Ensuites" : ""}
+                                Available: ${new Date(element.available_date).toLocaleString().slice(0, 10)}`);
                 
                 if (FILTER_STATUS == "not let") {
                     if (element.status == "Let") {
@@ -133,8 +142,10 @@
 
                 if (element.price < FILTER_MIN_PRICE || element.price > FILTER_MAX_PRICE) {
                     return;
-                } else {
-                    console.log(element.price);
+                } 
+
+                if (new Date (element['available_date']) > FILTER_START_DATE) {
+                    return;
                 }
 
                 marker.addTo(allProperties);
@@ -151,6 +162,12 @@
         FILTER_MAX_BED = document.getElementById("beds").value;
         FILTER_ENSUITE = document.getElementById("ensuite").checked;
 
+        if (document.getElementById("start-date") == "") {
+            FILTER_START_DATE = new Date().getFullYear() - 1;
+        } else {
+            FILTER_START_DATE = document.getElementById("start-date").value;
+        }
+
         if (document.getElementById("beds").value == 0) {
             FILTER_MAX_BED = 100;
         }
@@ -161,6 +178,7 @@
     }
 
     function redrawMap() {
+
         updateFilters();
         allProperties.clearLayers();
         drawMap();
