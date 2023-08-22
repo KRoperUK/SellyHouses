@@ -12,7 +12,7 @@
 
 <br />
 
-<h2>Filters</h2>
+<h2>Filters <input type="checkbox" id="bypass" name="bypass" onchange="redrawMap();"></h2> 
 
 <!-- <label for="min-beds">Minimum Beds: </label>
 <input type="number" id="min-beds" name="min-beds" value="0" min="0" max="100" onchange="redrawMap();">
@@ -52,23 +52,14 @@
         
             <label for="start-date">Available from: </label>
             <input type="date" id="start-date" name="start-date" value="2023-01-01" onchange="redrawMap();">
+            <input type="checkbox" id="start-date-enabled" name="start-date-enabled" onchange="redrawMap();">
         
     </li>
-
-    <li>
-        
-            <label for="bypass">Bypass filter</label>
-            <input type="checkbox" id="bypass" name="bypass" onchange="redrawMap();">
-        
-    </li>
-
-    <li>
-        <button onclick="redrawMap();">Update</button>
-    </li>
-
-
+    
+    
 </ul>
 
+<button onclick="redrawMap();">Update</button>
 <br />
 
 <span id="counter"></span>
@@ -93,9 +84,10 @@
     FILTER_MAX_PRICE = 1000000;
 
     FILTER_START_DATE = new Date().getFullYear() - 1;
-    FILTER_BYPASS = false;
+    FILTER_ENABLED = false;
+    FILTER_START_DATE_ENABLED = false;
 
-
+    sources = [];
 
     document.getElementById("counter").innerHTML = `There are ${properties.length} properties in the database.`;
 
@@ -110,6 +102,10 @@
     function drawMap() {
         properties.forEach(element => {
             if (element.lat && element.lon) {
+                if (!sources.includes(element.source)) {
+                    sources.push(element.source);
+                }
+
                 if (typeof element.price == "string") {
                     if (element.price.includes("£")) {
                         element.price = element.price.replace("£", "");
@@ -139,40 +135,54 @@
                                 ${element.baths == element.beds ? "Ensuites" : ""}
                                 Available: ${new Date(element.available_date).toLocaleString().slice(0, 10)}`);
                 
-                if (!FILTER_BYPASS) {
+                if (FILTER_ENABLED) {
                     if (FILTER_STATUS == "not let") {
                         if (element.status == "Let") {
+                            console.log(`${element.title} failed filter: property is let but filter is not let`);
                             return;
                         }
                     } else if (FILTER_STATUS == "let") {
                         if (element.status != "Let") {
+                            console.log(`${element.title} failed filter: property is not let but filter is let`);
                             return;
                         }
                     }
 
-                    if (element.beds < FILTER_MIN_BED || element.beds > FILTER_MAX_BED) {
-                        return;
+                    if (FILTER_MIN_BED != 0){
+                        if (element.beds < FILTER_MIN_BED || element.beds > FILTER_MAX_BED) {
+                            console.log(`${element.title} failed filter: property has ${element.beds} beds but filter is ${FILTER_MIN_BED} to ${FILTER_MAX_BED}`);
+                            return;
+                        }
                     }
 
                     if (FILTER_ENSUITE) {
                         if (element.beds != element.baths) {
+                            console.log(`${element.title} failed filter: property has ${element.beds} beds and ${element.baths} baths but filter is ensuite only`);
                             return;
                         }
                     }
 
                     if (element.price < FILTER_MIN_PRICE || element.price > FILTER_MAX_PRICE) {
+                        console.log(`${element.title} failed filter: property has price £${element.price} but filter is £${FILTER_MIN_PRICE} to £${FILTER_MAX_PRICE}`);
                         return;
                     } 
 
-                    if (new Date (element['available_date']) > FILTER_START_DATE && element['available_date'] != "Unknown") {
-                        return;
+                    if (FILTER_START_DATE_ENABLED) {
+                        if (element['available_date'] != "Unknown"){
+                            console.log(`${element.title} failed filter: property has no available date but filter is ${FILTER_START_DATE}`);
+                            return;
+                        }
+                        if (new Date (element['available_date']) > FILTER_START_DATE) {
+                            console.log(`${element.title} failed filter: property has available date ${element['available_date']} but filter is ${FILTER_START_DATE}`);
+                            return;
+                        }
                     }
                 }
 
                 marker.addTo(allProperties);
                 
             } else {
-                console.log(element.title)
+                console.log(`${element.title} failed filter: property has no lat or lon`);
             }
         });
     }
@@ -195,7 +205,8 @@
 
         FILTER_MAX_PRICE = document.getElementById("max-price").value;
 
-        FILTER_BYPASS = document.getElementById("bypass").checked;
+        FILTER_ENABLED = document.getElementById("bypass").checked;
+        FILTER_START_DATE_ENABLED = document.getElementById("start-date-enabled").checked;
 
         // FILTER_MIN_BED = document.getElementById("min-beds").value;
         // FILTER_MAX_BED = document.getElementById("max-beds").value;
