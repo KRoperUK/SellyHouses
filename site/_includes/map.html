@@ -55,6 +55,12 @@
             <input type="checkbox" id="start-date-enabled" name="start-date-enabled" onchange="redrawMap();">
         
     </li>
+    <li>
+        <label for="agents">Agents: </label>
+        <select name="agents" id="agents" multiple>
+
+        </select>
+    </li>
     
     
 </ul>
@@ -87,6 +93,8 @@
     FILTER_ENABLED = false;
     FILTER_START_DATE_ENABLED = false;
 
+    FILTER_SOURCES = [];
+
     sources = [];
 
     document.getElementById("counter").innerHTML = `There are ${properties.length} properties in the database.`;
@@ -104,6 +112,13 @@
             if (element.lat && element.lon) {
                 if (!sources.includes(element.source)) {
                     sources.push(element.source);
+                }
+
+                if (FILTER_SOURCES.length > 0) {
+                    if (!FILTER_SOURCES.includes(element.source)) {
+                        console.log(`${element.title} failed filter: property is from ${element.source} but filter is ${FILTER_SOURCES}`);
+                        return;
+                    }
                 }
 
                 if (typeof element.price == "string") {
@@ -208,6 +223,15 @@
         FILTER_ENABLED = document.getElementById("bypass").checked;
         FILTER_START_DATE_ENABLED = document.getElementById("start-date-enabled").checked;
 
+        document.getElementById("agents").childNodes.forEach(element => {
+            if (element.selected) {
+                FILTER_SOURCES.push(element.value);
+            } else {
+                FILTER_SOURCES = FILTER_SOURCES.filter(e => e !== element.value);
+            }
+        });
+
+
         // FILTER_MIN_BED = document.getElementById("min-beds").value;
         // FILTER_MAX_BED = document.getElementById("max-beds").value;
     }
@@ -220,6 +244,12 @@
 
         document.getElementById("selected-counter").innerHTML = `There are ${allProperties.getLayers().length} properties matching your filters.`;
         document.getElementById("selected-counter").hidden = false;
+
+        document.getElementById("agents").innerHTML = "";
+
+        sources.forEach(element => {
+            document.getElementById("agents").innerHTML += `<option value="${element}" ${FILTER_SOURCES.includes(element) ? "selected" : ""} >${element}</option>`;
+        });
     }
 
     redrawMap();
