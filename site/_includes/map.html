@@ -93,6 +93,12 @@
         iconAnchor: [16, 32],
         popupAnchor: [0, -32]
     });
+    const oakmansMarker = L.icon({
+        iconUrl: '/SellyHouses/assets/images/oakmans.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
 
     const properties = {{ site.data.combined | jsonify }};
 
@@ -202,6 +208,8 @@
 
                 if (element.source == "Easy Lettings") {
                     marker.setIcon(easyLettingsMarker);
+                } else if (element.source == "Oakmans") {
+                    marker.setIcon(oakmansMarker);
                 }
                 
                 if (FILTER_ENABLED) {
