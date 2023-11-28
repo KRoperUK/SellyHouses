@@ -99,6 +99,12 @@
         iconAnchor: [16, 32],
         popupAnchor: [0, -32]
     });
+    const kingAndCoMarker = L.icon({
+        iconUrl: '/SellyHouses/assets/images/king-and-co.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
 
     const properties = {{ site.data.combined | jsonify }};
 
@@ -210,6 +216,8 @@
                     marker.setIcon(easyLettingsMarker);
                 } else if (element.source == "Oakmans") {
                     marker.setIcon(oakmansMarker);
+                } else if (element.source == "King & Co") {
+                    marker.setIcon(kingAndCoMarker);
                 }
                 
                 if (FILTER_ENABLED) {
