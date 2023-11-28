@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from requests import get
 from requests.structures import CaseInsensitiveDict
 from re import findall, match
+from requests_html import HTMLSession
 
 import urllib.parse, json, os, datetime
 
@@ -191,8 +192,11 @@ class easy_lettings():
         # for i in range(1, 2):
             self.get_page_info(f"https://easylettingsbirmingham.co.uk/property-list/page/{i}/?department=residential-lettings&marketing_flag=67&marketing_flag_id=67")
         
+        counter = 0
         new_properties = []
         for property in self.properties:
+            counter += 1
+            log(f"[{counter} / {len(self.properties)}] Getting more data about... {property['title']}")
             new_properties.append(self.get_property_info(property['url'], property))
         self.properties = new_properties
 
@@ -211,13 +215,33 @@ class easy_lettings():
             property['title'] = property_raw.find('div', class_="address_holder").find('h5').text
             log(f"Getting basic data about... {property['title']}")
             # property['title'] = property_raw.find('h3').text
-            # property['address'] = property_raw.find('p', class_='address').text
+            # property['address'] = property_raw.find('p', class_='address').textz
             raw_price = property_raw.find('div', class_='price').text.strip().split('£')
             try:
                 property['price'] = f"£{raw_price[1]} {raw_price[0]}"
             except:
                 property['price'] = "".join(raw_price)
+
+            session = HTMLSession()
+            r = session.get(property['url'])
+            r.html.render()
+
+            for script in r.html.find('script'):
+                try:
+                    raw_lat_long = script.text.split('L.marker([')[1].split('])')[0].split(',')
+                    property['lat'] = raw_lat_long[0].strip()
+                    property['lon'] = raw_lat_long[1].strip()
+                except:
+                    try:
+                        raw_lat_long =  script.text.split('setView([')[1].split('],')[0].split(',')
+                        property['lat'] = raw_lat_long[0].strip()
+                        property['lon'] = raw_lat_long[1].strip()
+                    except:
+                        pass
             
+            if 'lat' not in property:
+                log(f"ERROR - Could not find lat/long for {property['title']}")
+
             icon_data = property_raw.find_all('div', {'class': 'icons-holder'})
 
             if property_raw.find('div', class_='sold_text'):
@@ -488,35 +512,35 @@ class king_co():
 
 outputs = []
 
-# # x = house_hunt()
-# # x.find_all()
-# # # # x.find_first()
-# # x.save_to_json()
-# # outputs = outputs + x.properties
+x = house_hunt()
+x.find_all()
+# # x.find_first()
+x.save_to_json()
+outputs = outputs + x.properties
 
 y = easy_lettings()
-y.find_first()
-# y.find_all()
+# y.find_first()
+y.find_all()
 y.save_to_json()
 outputs = outputs + y.properties
 
-# z = oakmans()
-# # # z.find_first()
-# z.find_all()
-# z.save_to_json()
-# outputs = outputs + z.properties
+z = oakmans()
+# # z.find_first()
+z.find_all()
+z.save_to_json()
+outputs = outputs + z.properties
 
-# a = purple_frog()
-# # a.find_first()
-# a.find_all()
-# a.save_to_json()
-# outputs = outputs + a.properties
+a = purple_frog()
+# a.find_first()
+a.find_all()
+a.save_to_json()
+outputs = outputs + a.properties
 
-# b = king_co()
-# # b.find_first()
-# b.find_all()
-# b.save_to_json()
-# outputs = outputs + b.properties
+b = king_co()
+# b.find_first()
+b.find_all()
+b.save_to_json()
+outputs = outputs + b.properties
 
 with open('combined.json', 'w') as f:
     json.dump(outputs, f, sort_keys=True, indent=4)
