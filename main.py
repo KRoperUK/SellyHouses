@@ -15,6 +15,7 @@ def log(message, level="VERBOSE"):
         print(f'[DEBUG] {message}')
 
 def geocode_property(property):
+    return property
     log(f"Geocoding {property['title']}")
     
     try:
@@ -319,17 +320,17 @@ class oakmans():
     def find_all(self):
         for i in range(1, int(self.pages) + 1):
             url = f"https://oakmans.co.uk/buying/page/{i}/?department=student"
-            self.get_page_info(url)
+            self.get_page_info(url, id=i,pages=int(self.pages))
         
 
     def save_to_json(self):
         with open('oakmans.json', 'w') as f:
             json.dump(self.properties, f, sort_keys=True, indent=4)
 
-    def get_page_info(self, url):
+    def get_page_info(self, url, id=0, pages=0):
         soup = BeautifulSoup(get(url).text, features="lxml")
 
-        log(f"Oakmans - Getting page info from... {url}")
+        log(f"[{id}/{pages}] Oakmans - Getting page info from... {url}")
 
         properties_raw = soup.find('div', class_='properties card-deck')
         properties_raw = properties_raw.find_all('a')
@@ -485,33 +486,37 @@ class king_co():
 
 
 
+outputs = []
 
-
-# x = house_hunt()
+# # x = house_hunt()
 # # x.find_all()
-# # x.find_first()
+# # # # x.find_first()
 # # x.save_to_json()
+# # outputs = outputs + x.properties
 
-# y = easy_lettings()
-# # y.find_first()
-# # y.find_all()
-# # y.save_to_json()
+y = easy_lettings()
+y.find_first()
+# y.find_all()
+y.save_to_json()
+outputs = outputs + y.properties
 
 # z = oakmans()
-# # z.find_first()
+# # # z.find_first()
 # z.find_all()
 # z.save_to_json()
+# outputs = outputs + z.properties
 
 # a = purple_frog()
-# a.find_first()
-# # a.find_all()
+# # a.find_first()
+# a.find_all()
 # a.save_to_json()
+# outputs = outputs + a.properties
 
-b = king_co()
-# b.find_first()
-b.find_all()
-b.save_to_json()
+# b = king_co()
+# # b.find_first()
+# b.find_all()
+# b.save_to_json()
+# outputs = outputs + b.properties
 
-
-# with open('combined.json', 'w') as f:
-#     json.dump(x.properties + y.properties, f, sort_keys=True, indent=4)
+with open('combined.json', 'w') as f:
+    json.dump(outputs, f, sort_keys=True, indent=4)
