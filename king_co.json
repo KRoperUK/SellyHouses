@@ -1,25 +1,69 @@
 [
     {
-        "baths": "12",
-        "beds": "12",
-        "lat": 52.440238382,
-        "lon": -1.9309768762,
-        "price": "\u00a31,704 pw",
+        "baths": "3",
+        "beds": "3",
+        "lat": 52.4430602306,
+        "lon": -1.9292659162,
+        "price": "\u00a3675 pw",
         "receptions": "1",
         "source": "King & Co",
-        "title": "99 Hubert Road All Bills Included",
-        "url": "https://www.kingandcoproperties.com/properties/17896890/lettings"
+        "title": "Elliott Apartments Selly Hill Road BI...",
+        "url": "https://www.kingandcoproperties.com/properties/17895960/lettings"
     },
     {
-        "baths": "12",
-        "beds": "12",
-        "lat": 52.440238382,
-        "lon": -1.9309768762,
-        "price": "\u00a31,704 pw",
+        "baths": "1",
+        "beds": "1",
+        "lat": 52.4243964324,
+        "lon": -1.9332623223,
+        "price": "\u00a3200 pw",
         "receptions": "1",
         "source": "King & Co",
-        "title": "101 Hubert Road",
-        "url": "https://www.kingandcoproperties.com/properties/17555655/lettings"
+        "title": "225A Mary Vale Road",
+        "url": "https://www.kingandcoproperties.com/properties/14581612/lettings"
+    },
+    {
+        "baths": "3",
+        "beds": "3",
+        "lat": 52.4430602306,
+        "lon": -1.9292659162,
+        "price": "\u00a3585 pw",
+        "receptions": "1",
+        "source": "King & Co",
+        "title": "Selly Hill Road",
+        "url": "https://www.kingandcoproperties.com/properties/15101732/lettings"
+    },
+    {
+        "baths": "3",
+        "beds": "3",
+        "lat": 52.4407233418,
+        "lon": -1.930122883,
+        "price": "\u00a3540 pw",
+        "receptions": "1",
+        "source": "King & Co",
+        "title": "The Annexe, 277 Tiverton Road BILLS I...",
+        "url": "https://www.kingandcoproperties.com/properties/17896120/lettings"
+    },
+    {
+        "baths": "1",
+        "beds": "1",
+        "lat": 52.4379261204,
+        "lon": -1.92789136,
+        "price": "\u00a3775 pcm",
+        "receptions": "1",
+        "source": "King & Co",
+        "title": "57a RADDLEBARN ROAD ",
+        "url": "https://www.kingandcoproperties.com/properties/11887917/lettings"
+    },
+    {
+        "baths": "1",
+        "beds": "1",
+        "lat": 52.4349002043,
+        "lon": -1.918348074,
+        "price": "\u00a3750 pcm",
+        "receptions": "1",
+        "source": "King & Co",
+        "title": "1087 Pershore Road ",
+        "url": "https://www.kingandcoproperties.com/properties/13966617/lettings"
     },
     {
         "baths": "8",
@@ -33,15 +77,48 @@
         "url": "https://www.kingandcoproperties.com/properties/14715565/lettings"
     },
     {
-        "baths": "9",
-        "beds": "9",
-        "lat": 52.4438177547,
-        "lon": -1.9333546534,
-        "price": "\u00a31,242 pw",
+        "baths": "6",
+        "beds": "6",
+        "lat": 52.4408520836,
+        "lon": -1.9290983677,
+        "price": "\u00a3942 pw",
         "receptions": "1",
         "source": "King & Co",
-        "title": "102 Tiverton Road All Bills Included",
-        "url": "https://www.kingandcoproperties.com/properties/17555517/lettings"
+        "title": "170 DAWLISH ROAD ALL BILLS INC.",
+        "url": "https://www.kingandcoproperties.com/properties/11798644/lettings"
+    },
+    {
+        "baths": "6",
+        "beds": "6",
+        "lat": 52.4461763863,
+        "lon": -1.9348142717,
+        "price": "\u00a3906 pw",
+        "receptions": "1",
+        "source": "King & Co",
+        "title": "29 North Road Part Bills Included",
+        "url": "https://www.kingandcoproperties.com/properties/14715679/lettings"
+    },
+    {
+        "baths": "4",
+        "beds": "6",
+        "lat": 52.4398299701,
+        "lon": -1.9291536444,
+        "price": "\u00a3900 pw",
+        "receptions": "1",
+        "source": "King & Co",
+        "title": "277 Tiverton Road BILLS INCLUDED",
+        "url": "https://www.kingandcoproperties.com/properties/14601740/lettings"
+    },
+    {
+        "baths": "6",
+        "beds": "6",
+        "lat": 52.4429815711,
+        "lon": -1.9331499456,
+        "price": "\u00a3870 pw",
+        "receptions": "1",
+        "source": "King & Co",
+        "title": "3 Totnes Grove All Bills Included",
+        "url": "https://www.kingandcoproperties.com/properties/17551825/lettings"
     },
     {
         "baths": "8",
@@ -53,83 +130,6 @@
         "source": "King & Co",
         "title": "178 Bournbrook Road All Bills Included",
         "url": "https://www.kingandcoproperties.com/properties/17551579/lettings"
-    },
-    {
-        "baths": "3",
-        "beds": "9",
-        "lat": 52.4447242125,
-        "lon": -1.9301292688,
-        "price": "\u00a31,098 pw",
-        "receptions": "1",
-        "source": "King & Co",
-        "title": "60 Harrow Road Part Bills Inc.",
-        "url": "https://www.kingandcoproperties.com/properties/14705481/lettings"
-    },
-    {
-        "baths": "3",
-        "beds": "8",
-        "lat": 52.4444361761,
-        "lon": -1.930072894,
-        "price": "\u00a31,096 pw",
-        "receptions": "2",
-        "source": "King & Co",
-        "title": "60 Harrow Road Part Bills Inc.",
-        "url": "https://www.kingandcoproperties.com/properties/16269384/lettings"
-    },
-    {
-        "baths": "8",
-        "beds": "8",
-        "lat": 52.4407233418,
-        "lon": -1.930122883,
-        "price": "\u00a31,088 pw",
-        "receptions": "1",
-        "source": "King & Co",
-        "title": "181 Tiverton Road All Bills Included",
-        "url": "https://www.kingandcoproperties.com/properties/17555382/lettings"
-    },
-    {
-        "baths": "4",
-        "beds": "8",
-        "lat": 52.4442266383,
-        "lon": -1.9304019213,
-        "price": "\u00a31,072 pw",
-        "receptions": "1",
-        "source": "King & Co",
-        "title": "71 HARROW ROAD",
-        "url": "https://www.kingandcoproperties.com/properties/11822182/lettings"
-    },
-    {
-        "baths": "7",
-        "beds": "8",
-        "lat": 52.4413055505,
-        "lon": -1.9265765664,
-        "price": "\u00a31,056 pw",
-        "receptions": "1",
-        "source": "King & Co",
-        "title": "126 Bournbrook Road ",
-        "url": "https://www.kingandcoproperties.com/properties/14361363/lettings"
-    },
-    {
-        "baths": "3",
-        "beds": "10",
-        "lat": 52.4427835573,
-        "lon": -1.9320590438,
-        "price": "\u00a31,050 pw",
-        "receptions": "1",
-        "source": "King & Co",
-        "title": "115 TIVERTON ROAD",
-        "url": "https://www.kingandcoproperties.com/properties/11719255/lettings"
-    },
-    {
-        "baths": "3",
-        "beds": "9",
-        "lat": 52.4447770972,
-        "lon": -1.9302053034,
-        "price": "\u00a31,026 pw",
-        "receptions": "1",
-        "source": "King & Co",
-        "title": "58 Harrow Road Part Bills Inc.",
-        "url": "https://www.kingandcoproperties.com/properties/14705406/lettings"
     },
     {
         "baths": "3",

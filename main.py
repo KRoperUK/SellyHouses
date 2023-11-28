@@ -71,7 +71,7 @@ class house_hunt():
 
         new_properties = []
         for property in self.properties:
-            log(f"Getting more data about... {property['title']}")
+            log(f"[HOUSE HUNT] Getting more data about... {property['title']}")
             property = self.get_property_info(property['url'], property)
 
             new_properties.append(property)
@@ -89,7 +89,7 @@ class house_hunt():
 
         new_properties = []
         for property in self.properties:
-            log(f"Getting more data about... {property['title']}")
+            log(f"[HOUSE HUNT] Getting more data about... {property['title']}")
             property = self.get_property_info(property['url'], property)
 
             new_properties.append(property)
@@ -108,7 +108,7 @@ class house_hunt():
             x_span = property.find('span', class_='title')
             x['title'] = x_span.find('a').text.split(',')[0]
 
-            log(f"Getting basic data about... {x['title']}")
+            log(f"[HOUSE HUNT] Getting basic data about... {x['title']}")
 
             x['source'] = "House Hunt"            
             x['address'] = x_span.find('a').text
@@ -196,12 +196,12 @@ class easy_lettings():
         new_properties = []
         for property in self.properties:
             counter += 1
-            log(f"[{counter} / {len(self.properties)}] Getting more data about... {property['title']}")
+            log(f"[EASY LETTINGS] [{counter} / {len(self.properties)}] Getting more data about... {property['title']}")
             new_properties.append(self.get_property_info(property['url'], property))
         self.properties = new_properties
 
     def get_page_info(self, url):
-        log(f"Getting page info from... {url}")
+        log(f"[EASY LETTINGS] Getting page info from... {url}")
 
         soup = BeautifulSoup(get(url).text, features="lxml")
         property_list = soup.find('ul', class_='property_ul')
@@ -213,7 +213,7 @@ class easy_lettings():
             property['source'] = "Easy Lettings"
             property['url'] = property_raw.find('div', class_="link-holder").find('a')['href']
             property['title'] = property_raw.find('div', class_="address_holder").find('h5').text
-            log(f"Getting basic data about... {property['title']}")
+            log(f"[EASY LETTINGS] Getting basic data about... {property['title']}")
             # property['title'] = property_raw.find('h3').text
             # property['address'] = property_raw.find('p', class_='address').textz
             raw_price = property_raw.find('div', class_='price').text.strip().split('£')
@@ -222,22 +222,22 @@ class easy_lettings():
             except:
                 property['price'] = "".join(raw_price)
 
-            session = HTMLSession()
-            r = session.get(property['url'])
-            r.html.render()
+            # session = HTMLSession()
+            # r = session.get(property['url'])
+            # r.html.render()
 
-            for script in r.html.find('script'):
-                try:
-                    raw_lat_long = script.text.split('L.marker([')[1].split('])')[0].split(',')
-                    property['lat'] = raw_lat_long[0].strip()
-                    property['lon'] = raw_lat_long[1].strip()
-                except:
-                    try:
-                        raw_lat_long =  script.text.split('setView([')[1].split('],')[0].split(',')
-                        property['lat'] = raw_lat_long[0].strip()
-                        property['lon'] = raw_lat_long[1].strip()
-                    except:
-                        pass
+            # for script in r.html.find('script'):
+            #     try:
+            #         raw_lat_long = script.text.split('L.marker([')[1].split('])')[0].split(',')
+            #         property['lat'] = raw_lat_long[0].strip()
+            #         property['lon'] = raw_lat_long[1].strip()
+            #     except:
+            #         try:
+            #             raw_lat_long =  script.text.split('setView([')[1].split('],')[0].split(',')
+            #             property['lat'] = raw_lat_long[0].strip()
+            #             property['lon'] = raw_lat_long[1].strip()
+            #         except:
+            #             pass
             
             if 'lat' not in property:
                 log(f"ERROR - Could not find lat/long for {property['title']}")
@@ -261,6 +261,29 @@ class easy_lettings():
         property = geocode_property(property)
 
         soup = BeautifulSoup(get(url).text, features="lxml")
+
+        for script in soup.find_all('script'):
+            try:
+                raw_lat_long = script.text.split('L.marker([')[1].split('])')[0].split(',')
+                property['lat'] = raw_lat_long[0].strip()
+                property['lon'] = raw_lat_long[1].strip()
+                # log(f"{property['lat']}, {property['lon']}")
+            except:
+                # log(f"ERROR - Could not find lat/long for {property['title']} via L.marker")
+                try:
+                    raw_lat_long =  script.text.split('setView([')[1].split('],')[0].split(',')
+                    property['lat'] = raw_lat_long[0].strip()
+                    property['lon'] = raw_lat_long[1].strip()
+                    # log(f"{property['lat']}, {property['lon']}")
+                except:
+                    # log(f"ERROR - Could not find lat/long for {property['title']} via setView")
+                    pass
+
+        if ('lat' not in property) or ('lon' not in property):
+            log(f"ERROR - Could not find lat/long for {property['title']}")
+        else:
+            log(f"Found lat/long for {property['title']}: {property['lat']}, {property['lon']}")
+
 
         div_content_text = soup.find('div', class_='content_holder').text
 
@@ -354,7 +377,7 @@ class oakmans():
     def get_page_info(self, url, id=0, pages=0):
         soup = BeautifulSoup(get(url).text, features="lxml")
 
-        log(f"[{id}/{pages}] Oakmans - Getting page info from... {url}")
+        log(f"[OAKMANS] [{id}/{pages}] Oakmans - Getting page info from... {url}")
 
         properties_raw = soup.find('div', class_='properties card-deck')
         properties_raw = properties_raw.find_all('a')
@@ -366,7 +389,7 @@ class oakmans():
             property['source'] = "Oakmans"
             property['url'] = property_raw['href']
             property['title'] = property_raw.find('h3', class_='card-header').text.split('£')[0].strip()
-            log(f"Getting basic data about... {property['title']}")
+            log(f"[OAKMANS] Getting basic data about... {property['title']}")
             property['price'] = property_raw.find('small').text.strip()
 
             property['price'] = property['price'].replace('per person per week', 'pppw')
@@ -380,7 +403,7 @@ class oakmans():
     def get_property_info(self, url, property):
         soup = BeautifulSoup(get(url).text, features="lxml")
 
-        log(f"Getting more data about... {property['title']}")
+        log(f"[OAKMANS] Getting more data about... {property['title']}")
 
         lat_lng = soup.find_all('script')[-4].text.split('\n')[7].split('LatLng(')[1].split(')')[0].split(',')
         property['lat'] = lat_lng[0].strip()
@@ -456,7 +479,7 @@ class purple_frog():
                 property['beds'] = "Unknown"
 
             property['baths'] = property_raw_features[2].text.split(' ')[0].strip()
-            log(f"Getting basic data about... {property['title']}")
+            log(f"[PURPLE FROG] Getting basic data about... {property['title']}")
             
             self.properties.append(property)
 
@@ -481,7 +504,7 @@ class king_co():
         self.get_page_info(self.BASE_LINK)
     
     def get_page_info(self, url):
-        log(f"King & Co - Getting page info from... {url}")
+        log(f"[KING & CO] Getting page info from... {url}")
 
         page = get(url).json()
 
@@ -510,37 +533,40 @@ class king_co():
 
 
 
-outputs = []
 
-x = house_hunt()
-x.find_all()
-# # x.find_first()
-x.save_to_json()
-outputs = outputs + x.properties
+def all():
+    outputs = []
+    x = house_hunt()
+    x.find_all()
+    # # x.find_first()
+    x.save_to_json()
+    outputs = outputs + x.properties
 
-y = easy_lettings()
-# y.find_first()
-y.find_all()
-y.save_to_json()
-outputs = outputs + y.properties
+    y = easy_lettings()
+    # y.find_first()
+    y.find_all()
+    y.save_to_json()
+    outputs = outputs + y.properties
 
-z = oakmans()
-# # z.find_first()
-z.find_all()
-z.save_to_json()
-outputs = outputs + z.properties
+    z = oakmans()
+    # # z.find_first()
+    z.find_all()
+    z.save_to_json()
+    outputs = outputs + z.properties
 
-a = purple_frog()
-# a.find_first()
-a.find_all()
-a.save_to_json()
-outputs = outputs + a.properties
+    a = purple_frog()
+    # a.find_first()
+    a.find_all()
+    a.save_to_json()
+    outputs = outputs + a.properties
 
-b = king_co()
-# b.find_first()
-b.find_all()
-b.save_to_json()
-outputs = outputs + b.properties
+    b = king_co()
+    # b.find_first()
+    b.find_all()
+    b.save_to_json()
+    outputs = outputs + b.properties
 
-with open('combined.json', 'w') as f:
-    json.dump(outputs, f, sort_keys=True, indent=4)
+    with open('combined.json', 'w') as f:
+        json.dump(outputs, f, sort_keys=True, indent=4)
+
+all()
