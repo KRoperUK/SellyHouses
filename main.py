@@ -87,10 +87,10 @@ class house_hunt():
         for url in urls:
             self.get_page_info(url)
 
+
         new_properties = []
-        for property in self.properties:
-            log(f"[HOUSE HUNT] Getting more data about... {property['title']}")
-            property = self.get_property_info(property['url'], property)
+        for index, property in enumerate(self.properties):
+            property = self.get_property_info(property['url'], property, index, len(self.properties))
 
             new_properties.append(property)
         self.properties = new_properties
@@ -134,7 +134,8 @@ class house_hunt():
             properties.append(x)
         self.properties = self.properties + properties
 
-    def get_property_info(self, url, property):
+    def get_property_info(self, url, property, index=0, total=0):
+        log(f"[HOUSE HUNT] [{index}/{total}] Getting more data about... {property['title']}")
         soup = BeautifulSoup(get(url).text, features="lxml")
 
         content = soup.find_all('div', id='content')[0]
