@@ -539,27 +539,41 @@ class king_co():
 
 def all():
     outputs = []
+    
     x = house_hunt()
     y = easy_lettings()
-    z = oakmans()
+    try:
+        z = oakmans()
+    except:
+        pass
     a = purple_frog()
     b = king_co()
 
     t1 = threading.Thread(target=x.find_all)
     t2 = threading.Thread(target=y.find_all)
-    t3 = threading.Thread(target=z.find_all)
+    
+    try:
+        t3 = threading.Thread(target=z.find_all)
+    except:
+        pass
     t4 = threading.Thread(target=a.find_all)
     t5 = threading.Thread(target=b.find_all)
 
     t1.start()
     t2.start()
-    t3.start()
+    try:
+        t3.start()
+    except:
+        pass
     t4.start()
     t5.start()
 
     t1.join()
     t2.join()
-    t3.join()
+    try:
+        t3.join()
+    except:
+        pass
     t4.join()
     t5.join()
 
@@ -576,8 +590,11 @@ def all():
 
     # # z.find_first()
     # z.find_all()
-    z.save_to_json()
-    outputs = outputs + z.properties
+    try:
+        z.save_to_json()
+        outputs = outputs + z.properties
+    except:
+        pass
 
     # a.find_first()
     # a.find_all()
