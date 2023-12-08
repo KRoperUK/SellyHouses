@@ -10,6 +10,17 @@ DATE_TODAY = datetime.datetime.today().strftime('%d/%m/%Y')
 REGEX_DATE = r'^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$'
 GEOAPIFY_API_KEY = os.getenv('GEOAPIFY_API_KEY')
 
+COLOURS = {
+    "HEADER": "\033[95m",
+    "BLUE": "\033[94m",
+    "GREEN": "\033[92m",
+    "WARNING": "\033[93m",
+    "FAIL": "\033[91m",
+    "ENDC": "\033[0m",
+    "BOLD": "\033[1m",
+    "UNDERLINE": "\033[4m"
+}
+
 def log(message, level="VERBOSE"):
     if level == "VERBOSE":
         print(f'[DEBUG] {message}')
@@ -244,7 +255,7 @@ class easy_lettings():
             #             pass
             
             if 'lat' not in property:
-                log(f"ERROR - Could not find lat/long for {property['title']}")
+                log(f"{COLOURS['FAIL']}ERROR{COLOURS['ENDC']} - Could not find lat/long for {property['title']}")
 
             icon_data = property_raw.find_all('div', {'class': 'icons-holder'})
 
