@@ -558,7 +558,9 @@ def all():
     y = easy_lettings()
     try:
         z = oakmans()
-    except:
+    except Exception as e:
+        print("Could not find Oakmans")
+        print(e)
         pass
     a = purple_frog()
     b = king_co()
