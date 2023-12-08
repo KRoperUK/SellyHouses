@@ -289,12 +289,12 @@ class easy_lettings():
                     property['lon'] = raw_lat_long[1].strip()
                     # log(f"{property['lat']}, {property['lon']}")
                 except:
-                    property = geocode_property(property)
                     # log(f"ERROR - Could not find lat/long for {property['title']} via setView")
                     pass
 
         if ('lat' not in property) or ('lon' not in property):
             log(f"ERROR - Could not find lat/long for {property['title']}")
+            property = geocode_property(property)
         else:
             log(f"Found lat/long for {property['title']}: {property['lat']}, {property['lon']}")
 
