@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 from requests import get
 from requests.structures import CaseInsensitiveDict
 from re import findall, match
-from requests_html import HTMLSession
 
 import urllib.parse, json, os, datetime
 
@@ -383,7 +382,7 @@ class oakmans():
         properties_raw = soup.find('div', class_='properties card-deck')
         properties_raw = properties_raw.find_all('a')
 
-        for property_raw in properties_raw:
+        for index, property_raw in enumerate(properties_raw):
             property = {}
 
 
@@ -397,14 +396,14 @@ class oakmans():
 
             property['beds'] = property_raw.find('p', class_='card-text').text.split(' ')[0].strip()
 
-            property = self.get_property_info(property['url'], property)
+            property = self.get_property_info(property['url'], property, id=index, total=len(properties_raw))
 
             self.properties.append(property)
 
-    def get_property_info(self, url, property):
+    def get_property_info(self, url, property, id=0, total=0):
         soup = BeautifulSoup(get(url).text, features="lxml")
 
-        log(f"[OAKMANS] Getting more data about... {property['title']}")
+        log(f"[OAKMANS] [{id}/{total}] Getting more data about... {property['title']}")
 
         lat_lng = soup.find_all('script')[-4].text.split('\n')[7].split('LatLng(')[1].split(')')[0].split(',')
         property['lat'] = lat_lng[0].strip()
