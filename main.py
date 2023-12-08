@@ -4,7 +4,7 @@ from requests import get
 from requests.structures import CaseInsensitiveDict
 from re import findall, match
 
-import urllib.parse, json, os, datetime
+import urllib.parse, json, os, datetime, threading
 
 DATE_TODAY = datetime.datetime.today().strftime('%d/%m/%Y')
 REGEX_DATE = r'^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$'
@@ -537,32 +537,52 @@ class king_co():
 def all():
     outputs = []
     x = house_hunt()
-    x.find_all()
+    y = easy_lettings()
+    z = oakmans()
+    a = purple_frog()
+    b = king_co()
+
+    t1 = threading.Thread(target=x.find_all)
+    t2 = threading.Thread(target=y.find_all)
+    t3 = threading.Thread(target=z.find_all)
+    t4 = threading.Thread(target=a.find_all)
+    t5 = threading.Thread(target=b.find_all)
+
+    t1.start()
+    t2.start()
+    t3.start()
+    t4.start()
+    t5.start()
+
+    t1.join()
+    t2.join()
+    t3.join()
+    t4.join()
+    t5.join()
+    
+
+    # x.find_all()
     # # x.find_first()
     x.save_to_json()
     outputs = outputs + x.properties
 
-    y = easy_lettings()
     # y.find_first()
-    y.find_all()
+    # y.find_all()
     y.save_to_json()
     outputs = outputs + y.properties
 
-    z = oakmans()
     # # z.find_first()
-    z.find_all()
+    # z.find_all()
     z.save_to_json()
     outputs = outputs + z.properties
 
-    a = purple_frog()
     # a.find_first()
-    a.find_all()
+    # a.find_all()
     a.save_to_json()
     outputs = outputs + a.properties
 
-    b = king_co()
     # b.find_first()
-    b.find_all()
+    # b.find_all()
     b.save_to_json()
     outputs = outputs + b.properties
 
