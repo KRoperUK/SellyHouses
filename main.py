@@ -609,4 +609,40 @@ def all():
     with open('combined.json', 'w') as f:
         json.dump(outputs, f, sort_keys=True, indent=4)
 
-all()
+def post_check():
+    with open('combined.json', 'r') as f:
+        properties = json.load(f)
+
+    no_lat_long = []
+    sources = []
+
+    for property in properties:
+        if 'lat' not in property:
+            log(f"ERROR - Could not find lat/long for {property['title']}")
+            if property not in no_lat_long:
+                no_lat_long.append(property)
+        if 'lon' not in property:
+            log(f"ERROR - Could not find lat/long for {property['title']}")
+            if property not in no_lat_long:
+                no_lat_long.append(property)
+
+        if 'available_date' not in property:
+            log(f"ERROR - Could not find available date for {property['title']}")
+        if 'beds' not in property:
+            log(f"ERROR - Could not find beds for {property['title']}")
+        if 'baths' not in property:
+            log(f"ERROR - Could not find baths for {property['title']}")
+        if 'price' not in property:
+            log(f"ERROR - Could not find price for {property['title']}")
+        if 'source' not in property:
+            log(f"ERROR - Could not find source for {property['title']}")
+        else:
+            if property['source'] not in sources:
+                sources.append(property['source'])
+
+    print(f"Found {len(no_lat_long)} ({int(len(no_lat_long)/len(properties) * 100)}%) properties with no lat/long:")
+    for property in no_lat_long:
+        print(f" - {property['title']} ({property['source']})")
+
+# all()
+post_check()
