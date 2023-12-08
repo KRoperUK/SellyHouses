@@ -15,7 +15,8 @@ def log(message, level="VERBOSE"):
         print(f'[DEBUG] {message}')
 
 def geocode_property(property):
-    return property
+    if property["source"] != "House Hunt":
+        return property
     log(f"Geocoding {property['title']}")
     
     try:
@@ -24,13 +25,16 @@ def geocode_property(property):
         if 'address' in property:
             params = {"text": property['address'], "apiKey": GEOAPIFY_API_KEY}
         elif 'title' in property:
+            log(f"Geocoding {property['title']} no address")
             if 'source' in property:
                 if property['source'] == "Easy Lettings":
                     params = {"text": property['url'][46:-1].replace("-", " "), "apiKey": GEOAPIFY_API_KEY}
-            else:
-                params = {"text": property['title'] + " Selly Oak", "apiKey": GEOAPIFY_API_KEY}
+                else:
+                    params = {"text": property['title'] + " Selly Oak", "apiKey": GEOAPIFY_API_KEY}
 
+        log(f"Geocoding {property['title']} with params {params}")
         url += urllib.parse.urlencode(params)
+        log(f"Geocoding {property['title']} with url {url}")
 
         headers = CaseInsensitiveDict()
         headers["Accept"] = "application/json"
@@ -38,7 +42,7 @@ def geocode_property(property):
         resp = get(url, headers=headers)
 
         if resp.status_code == 401:
-            log(f"ERROR - Geocoding status 401 for f{property}. Check API key.")
+            log(f"ERROR - Geocoding status 401 for {property}. Check API key.")
         
         if 'address' not in property:
             property['address'] = resp.json()['features'][0]['properties']['formatted']
@@ -48,9 +52,9 @@ def geocode_property(property):
             property['lat'] = resp.json()['features'][0]['properties']['lat']
             property['lon'] = resp.json()['features'][0]['properties']['lon']
         else:
-            log(f"ERROR - Geocoding status not 200 for f{property}, status code {resp.status_code}")
+            log(f"ERROR - Geocoding status not 200 for {property}, status code {resp.status_code}")
     except:
-        log(f"ERROR - Could not find more information about f{property}")
+        log(f"ERROR - Could not find more information about {property}")
     return property
 
 class house_hunt():
@@ -644,5 +648,9 @@ def post_check():
     for property in no_lat_long:
         print(f" - {property['title']} ({property['source']})")
 
+def test_geocode():
+    print(geocode_property({"title": "115 Tiverton Road", "source": "House Hunt"}))
+
 all()
 post_check()
+# test_geocode()
