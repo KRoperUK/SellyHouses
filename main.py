@@ -352,11 +352,14 @@ class easy_lettings():
 class oakmans():
     def __init__(self) -> None:
         self.BASE_LINK = f"https://oakmans.co.uk/buying/?department=student"
+        self.properties = []
 
         soup = BeautifulSoup(get(self.BASE_LINK).text, features="lxml")
-        self.pages = soup.find('ul', class_='pagination').find_all('li')[-2].text
+        try:
+            self.pages = soup.find('ul', class_='pagination').find_all('li')[-2].text
+        except:
+            raise Exception("Could not find pages for Oakmans")
 
-        self.properties = []
 
     def find_first(self):
         current_page = 1
@@ -559,7 +562,7 @@ def all():
     t3.join()
     t4.join()
     t5.join()
-    
+
 
     # x.find_all()
     # # x.find_first()
