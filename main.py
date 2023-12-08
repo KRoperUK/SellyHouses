@@ -644,5 +644,5 @@ def post_check():
     for property in no_lat_long:
         print(f" - {property['title']} ({property['source']})")
 
-# all()
+all()
 post_check()
