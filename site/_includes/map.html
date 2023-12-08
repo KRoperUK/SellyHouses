@@ -106,6 +106,13 @@
         popupAnchor: [0, -32]
     });
 
+    const houseHuntMarker = L.icon({
+        iconUrl: '/SellyHouses/assets/images/house-hunt.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+
     const properties = {{ site.data.combined | jsonify }};
 
     FILTER_STATUS = "all";
@@ -218,6 +225,8 @@
                     marker.setIcon(oakmansMarker);
                 } else if (element.source == "King & Co") {
                     marker.setIcon(kingAndCoMarker);
+                } else if (element.source == "House Hunt") {
+                    marker.setIcon(houseHuntMarker);
                 }
                 
                 if (FILTER_ENABLED) {
