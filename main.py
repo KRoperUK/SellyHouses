@@ -650,6 +650,6 @@ def post_check():
 def test_geocode():
     print(geocode_property({"title": "115 Tiverton Road", "source": "House Hunt"}))
 
-# all()
-# post_check()
-test_geocode()
+all()
+post_check()
+# test_geocode()
