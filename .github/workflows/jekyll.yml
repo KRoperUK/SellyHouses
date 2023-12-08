@@ -55,7 +55,7 @@ jobs:
       - name: Run Script
         env:
           GEOAPIFY_API_KEY: ${{ secrets.GEOAPIFY_API_KEY }}
-        run: python3 main.py; ls; mv combined.json site/_data/combined.json
+        run: python3 main.py; ls; cp combined.json ./site/_data/combined.json
       - name: Build with Jekyll
         # Outputs to the './_site' directory by default
         run: cd site; bundle install; bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
