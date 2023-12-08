@@ -15,8 +15,6 @@ def log(message, level="VERBOSE"):
         print(f'[DEBUG] {message}')
 
 def geocode_property(property):
-    if property["source"] != "House Hunt":
-        return property
     log(f"Geocoding {property['title']}")
     
     try:
@@ -52,7 +50,9 @@ def geocode_property(property):
             property['lat'] = resp.json()['features'][0]['properties']['lat']
             property['lon'] = resp.json()['features'][0]['properties']['lon']
         else:
-            log(f"ERROR - Geocoding status not 200 for {property}, status code {resp.status_code}")
+            if 'title' in property:
+                log(f"ERROR - Geocoding status not 200 for {property['title']}, status code {resp.status_code}")
+            log(f"ERROR - Geocoding status not 200. Geocodify response: {resp.json()}")
     except:
         log(f"ERROR - Could not find more information about {property}")
     return property
@@ -262,8 +262,6 @@ class easy_lettings():
             self.properties.append(property)
 
     def get_property_info(self, url, property):
-        property = geocode_property(property)
-
         soup = BeautifulSoup(get(url).text, features="lxml")
 
         for script in soup.find_all('script'):
@@ -280,6 +278,7 @@ class easy_lettings():
                     property['lon'] = raw_lat_long[1].strip()
                     # log(f"{property['lat']}, {property['lon']}")
                 except:
+                    property = geocode_property(property)
                     # log(f"ERROR - Could not find lat/long for {property['title']} via setView")
                     pass
 
