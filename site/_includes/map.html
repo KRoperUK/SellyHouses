@@ -120,6 +120,7 @@
         popupAnchor: [0, -32]
     });
 
+    // IGNORE THIS
     const properties = {{ site.data.combined | jsonify }};
 
     FILTER_STATUS = "all";
@@ -183,9 +184,9 @@
         position: 'topright'
     }).addTo(map);
 
+    if (element.lat && element.lon) {
     function drawMap() {
         properties.forEach(element => {
-            if (element.lat && element.lon) {
                 if (!sources.includes(element.source)) {
                     sources.push(element.source);
                 }
@@ -217,7 +218,12 @@
                     }
                 }
 
-                var marker = L.marker([element.lat, element.lon]);
+                try {
+                    var marker = L.marker([element.lat, element.lon]);
+                } catch (err) {
+                    console.log(`${element.title} failed filter: property has invalid lat or lon: ${element.lat}, ${element.lon}`);
+                    return;
+                }
                 marker.bindPopup(`<a href="${element.url}">${element.title}</a>
                                 <br />
                                 £${element.price} pw<br />
@@ -292,11 +298,10 @@
                 }
 
                 marker.addTo(allProperties);
-                
-            } else {
                 console.log(`${element.title} failed filter: property has no lat or lon`);
-            }
-        });
+                
+            });
+        }
     }
 
     function updateFilters() {
