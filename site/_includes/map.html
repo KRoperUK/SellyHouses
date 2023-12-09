@@ -113,6 +113,13 @@
         popupAnchor: [0, -32]
     });
 
+    const directHousingMarker = L.icon({
+        iconUrl: '/SellyHouses/assets/images/direct-housing.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+
     const properties = {{ site.data.combined | jsonify }};
 
     FILTER_STATUS = "all";
@@ -227,6 +234,8 @@
                     marker.setIcon(kingAndCoMarker);
                 } else if (element.source == "House Hunt") {
                     marker.setIcon(houseHuntMarker);
+                } else if (element.source == "Direct Housing") {
+                    marker.setIcon(directHousingMarker);
                 }
                 
                 if (FILTER_ENABLED) {

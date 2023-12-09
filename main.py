@@ -32,18 +32,19 @@ def geocode_property(property):
         url = "https://api.geoapify.com/v1/geocode/search?"
         
         if 'address' in property:
-            params = {"text": property['address'], "apiKey": GEOAPIFY_API_KEY}
+            params = {"text": property['address'] + " United Kingdom", "apiKey": GEOAPIFY_API_KEY}
         elif 'title' in property:
             log(f"Geocoding {property['title']} no address")
             if 'source' in property:
                 if property['source'] == "Easy Lettings":
-                    params = {"text": property['url'][46:-1].replace("-", " "), "apiKey": GEOAPIFY_API_KEY}
+                    params = {"text": property['title'] + " Birmingham, United Kingdom", "apiKey": GEOAPIFY_API_KEY}
                 else:
-                    params = {"text": property['title'] + " Selly Oak", "apiKey": GEOAPIFY_API_KEY}
+                    params = {"text": property['title'] + " Birmingham, United Kingdom", "apiKey": GEOAPIFY_API_KEY}
+            log(f"Geocoding {property['title']} with params {params}")
 
-        log(f"Geocoding {property['title']} with params {params}")
         url += urllib.parse.urlencode(params)
-        log(f"Geocoding {property['title']} with url {url}")
+        if 'title' in property:
+            log(f"Geocoding {property['title']} with url {url}")
 
         headers = CaseInsensitiveDict()
         headers["Accept"] = "application/json"
@@ -174,7 +175,7 @@ class house_hunt():
         except:
             log(f"ERROR - Could not find images for {property['title']}")
         
-        property = geocode_property(property)
+        # property = geocode_property(property)
 
         return property
     def save_to_json(self):
@@ -294,7 +295,7 @@ class easy_lettings():
 
         if ('lat' not in property) or ('lon' not in property):
             log(f"ERROR - Could not find lat/long for {property['title']}")
-            property = geocode_property(property)
+            # property = geocode_property(property)
         else:
             log(f"Found lat/long for {property['title']}: {property['lat']}, {property['lon']}")
 
@@ -548,6 +549,128 @@ class king_co():
         with open('king_co.json', 'w') as f:
             json.dump(self.properties, f, sort_keys=True, indent=4)
 
+class direct_housing():
+    def __init__(self):
+        self.BASE_LINK = ("https://direct-housing.co.uk/property-search/page/", "/?orderby=price-asc&address_keyword&radius=1&department=residential-lettings&_let_type=Student&property_type&bedrooms&minimum_price&maximum_price&minimum_rent&maximum_rent&commercial_property_type&commercial_for_sale_to_rent&commercial_minimum_price&commercial_maximum_price&commercial_minimum_rent&commercial_maximum_rent&lat&lng")
+        self.properties = []
+        
+        self.pages = self.max_pages()
+        log(f"[DIRECT HOUSING] Found {self.pages} pages")
+    
+    def max_pages(self):
+        soup = BeautifulSoup(get(self.build_url_by_page(1)).text, features="lxml")
+        pages = soup.find('div', class_='propertyhive-pagination').find_all('a')[-2].text.strip()
+        return int(pages)
+    
+    def reprocess_properties(self):
+        new_properties = []
+        for index, property in enumerate(self.properties):
+            log(f"[DIRECT HOUSING] [{index}/{len(self.properties)}] Getting more data about... {property['title']}")
+            property = self.get_property_info(property)
+            new_properties.append(property)
+        self.properties = new_properties
+
+    def build_url_by_page(self, page):
+        return self.BASE_LINK[0] + str(page) + self.BASE_LINK[1]
+
+    def find_first(self):
+        self.get_page_info(self.build_url_by_page(1))
+        self.reprocess_properties()
+    
+    def find_all(self):
+        for i in range(1, self.pages + 1):
+            self.get_page_info(self.build_url_by_page(i))
+        self.reprocess_properties()
+
+    def get_page_info(self, url):
+        soup = BeautifulSoup(get(url).text, features="lxml")
+
+        log(f"[DIRECT HOUSING] Getting page info from... {url}")
+
+        properties_raw = soup.find_all('div', class_='details')
+        log(len(properties_raw))
+
+        for index, property_raw in enumerate(properties_raw):
+            try:
+                property = {}
+
+                property['source'] = "Direct Housing"
+                property['title'] = property_raw.find('h3').text.strip()
+                log(f"[DIRECT HOUSING] Getting basic data about... {property['title']}")
+                property['url'] = property_raw.find('a')['href']
+                
+                try:
+                    property['price'] = property_raw.find('div', class_='price').text.strip()
+                except:
+                    property['price'] = "Unknown"
+                
+                try:
+                    property['status'] = property_raw.find('div', class_='availability').text.strip()
+                except:
+                    property['status'] = "Unknown"
+
+                if property['status'] == "Let Agreed":
+                    property['status'] = "Let"
+                # property['title'] = property_raw.find('h3').text.strip()
+                # property['url'] = property_raw.find('a')['href']
+                # property['price'] = property_raw.find('span', class_='propertyhive-price').text.strip()
+
+                # property['beds'] = property_raw.find('span', class_='propertyhive-bedrooms').text.strip()
+                # property['baths'] = property_raw.find('span', class_='propertyhive-bathrooms').text.strip()
+
+                self.properties.append(property)
+            except:
+                log(f"ERROR - Could not find basic data about {index + 1}")
+        
+    
+    def get_property_info(self, property):
+        soup = BeautifulSoup(get(property["url"]).text, features="lxml")
+
+        log(f"[DIRECT HOUSING] Getting more data about... {property['title']}")
+
+        try:
+            property["beds"] = soup.find('div', class_='elementor-widget-bedrooms').text.strip()
+        except:
+            property["beds"] = "Unknown"
+
+        try:
+            property["baths"] = soup.find('div', class_='elementor-widget-bathrooms').text.strip()
+        except:
+            property["baths"] = "Unknown"
+
+        try:
+            for script in soup.find_all('script', class_=None, id=None, type=None):
+                try:
+                    raw_lat_lng = script.text.split("google.maps.LatLng(")[1]
+                    raw_lat_lng = raw_lat_lng.split(")")[0]
+                    raw_lat_lng = raw_lat_lng.split(", ")
+                    property['lat'] = raw_lat_lng[0].strip()
+                    property['lon'] = raw_lat_lng[1].strip()
+                except:
+                    pass
+        except:
+            pass
+
+        if 'lat' not in property or 'lon' not in property:
+            log(f"ERROR - Could not find lat/long for {property['title']}")
+            property['lat'] = "Unknown"
+            property['lon'] = "Unknown"
+        
+
+        property['available_date'] = "Unknown"
+
+        property['images'] = []
+
+        # property['address'] = soup.find('input', id='propertyhive-address')['value']
+
+        property['status'] = "Unknown"
+
+        return property
+    
+    def save_to_json(self):
+        with open('direct_housing.json', 'w') as f:
+            json.dump(self.properties, f, sort_keys=True, indent=4)
+    
 
 
 
@@ -564,6 +687,7 @@ def all():
         pass
     a = purple_frog()
     b = king_co()
+    c = direct_housing()
 
     t1 = threading.Thread(target=x.find_all)
     t2 = threading.Thread(target=y.find_all)
@@ -574,6 +698,7 @@ def all():
         pass
     t4 = threading.Thread(target=a.find_all)
     t5 = threading.Thread(target=b.find_all)
+    t6 = threading.Thread(target=c.find_all)
 
     t1.start()
     t2.start()
@@ -584,6 +709,12 @@ def all():
     t4.start()
     t5.start()
 
+    try:
+        t6.join()
+    except:
+        pass
+
+
     t1.join()
     t2.join()
     try:
@@ -592,6 +723,11 @@ def all():
         pass
     t4.join()
     t5.join()
+
+    try:
+        t6.join()
+    except:
+        pass
 
 
     # x.find_all()
@@ -621,6 +757,13 @@ def all():
     # b.find_all()
     b.save_to_json()
     outputs = outputs + b.properties
+
+    c.save_to_json()
+    # c.find_first()
+    # c.find_all()
+    outputs = outputs + c.properties
+
+    outputs = manual_checks(outputs)
 
     with open('combined.json', 'w') as f:
         json.dump(outputs, f, sort_keys=True, indent=4)
@@ -655,14 +798,64 @@ def post_check():
         else:
             if property['source'] not in sources:
                 sources.append(property['source'])
-
-    print(f"Found {len(no_lat_long)} ({int(len(no_lat_long)/len(properties) * 100)}%) properties with no lat/long:")
+    if len(no_lat_long) > 0 & len(properties) > 0:
+        print(f"Found {len(no_lat_long)} ({int(len(no_lat_long)/len(properties) * 100)}%) properties with no lat/long:")
     for property in no_lat_long:
         print(f" - {property['title']} ({property['source']})")
 
-def test_geocode():
-    print(geocode_property({"title": "115 Tiverton Road", "source": "House Hunt"}))
+def test_geocode(property={"title": "115 Tiverton Road", "source": "House Hunt"}):
+    print(geocode_property(property))
+
+def manual_checks(properties):
+    edited_properties = []
+
+    MANUAL_PROPERTIES = {
+        {"title": "107 TIVERTON ROAD", "source": "King & Co"},
+        {"title": "43 Alton Road", "source": "Easy Lettings"},
+    }
+    
+    for property in properties:
+        if 'lat' not in property:
+            property = geocode_property(property)
+        if 'lon' not in property:
+            property = geocode_property(property)
+        if 'available_date' not in property:
+            property['available_date'] = "Unknown"
+        if 'beds' not in property:
+            property['beds'] = "Unknown"
+        if 'baths' not in property:
+            property['baths'] = "Unknown"
+        if 'price' not in property:
+            property['price'] = "Unknown"
+        if 'source' not in property:
+            property['source'] = "Unknown"
+        if 'images' not in property:
+            property['images'] = []
+        if 'status' not in property:
+            property['status'] = "Unknown"
+        if 'address' not in property:
+            property['address'] = "Unknown"
+
+        for manual_property in MANUAL_PROPERTIES:
+            if manual_property['title'] == property['title']:
+                property = geocode_property(property)
+
+        edited_properties.append(property)
+
+    return edited_properties
+
+def dh():
+    outputs = []
+    dh_obj = direct_housing()
+    dh_obj.find_all()
+    outputs = outputs + dh_obj.properties
+    # dh_obj.save_to_json()
+    with open('combined.json', 'w') as f:
+        json.dump(outputs, f, sort_keys=True, indent=4)
+# dh()
 
 all()
 post_check()
-# test_geocode()
+# test_geocode({"title": "Renwick Apartments, Selly Oak, B29 7BL - Flat 303", "source": "House Hunt"})
+# test_geocode({"title": "63 Bristol Road Birmingham", "source": "Easy Lettings"})
+# test_geocode({"title": "107 TIVERTON ROAD", "source": "King & Co"})
