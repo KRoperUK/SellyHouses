@@ -763,7 +763,10 @@ def all():
     # c.find_all()
     outputs = outputs + c.properties
 
-    outputs = manual_checks(outputs)
+    try:
+        outputs = manual_checks(outputs)
+    except:
+        log(f"{COLOURS['FAIL']}ERROR{COLOURS['ENDC']} - Could not run manual checks")
 
     with open('combined.json', 'w') as f:
         json.dump(outputs, f, sort_keys=True, indent=4)
@@ -809,10 +812,10 @@ def test_geocode(property={"title": "115 Tiverton Road", "source": "House Hunt"}
 def manual_checks(properties):
     edited_properties = []
 
-    MANUAL_PROPERTIES = {
+    MANUAL_PROPERTIES = [
         {"title": "107 TIVERTON ROAD", "source": "King & Co"},
         {"title": "43 Alton Road", "source": "Easy Lettings"},
-    }
+    ]
     
     for property in properties:
         if 'lat' not in property:
