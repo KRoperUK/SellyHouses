@@ -710,7 +710,7 @@ def all():
     t5.start()
 
     try:
-        t6.join()
+        t6.start()
     except:
         pass
 
